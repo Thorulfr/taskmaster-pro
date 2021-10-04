@@ -45,8 +45,45 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+// When a user clicks a stored task, convert to editable form element
+$(".list-group").on("click", "p", function () {
+  var text = $(this)
+    .text()
+    .trim();
+  var textInput = $("<textarea>")
+    .addClass("form-control")
+    .val(text);
+  $(this).replaceWith(textInput);
+  textInput.trigger("focus");
+});
 
+// When user clicks out of editing task, save and return as <p>
+$(".list-group").on("blur", "textarea", function () {
+  // Get current, updated value/text
+  var text = $(this)
+    .val()
+    .trim();
 
+  // Get the parent ul's ID
+  var status = $(this)
+    .closest(".list-group")
+    .attr("id")
+    .replace("list-", "");
+
+  // Get the tasks' position in the list of other <li> elements
+  var index = $(this)
+    .closest(".list-group-item")
+    .index();
+
+  tasks[status][index].text = text;
+  saveTasks();
+
+  // Rebuild <p> element
+  var taskP = $("<p>")
+    .addClass("m-1")
+    .text(text);
+  $(this).replaceWith(taskP);
+});
 
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
