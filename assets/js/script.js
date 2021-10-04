@@ -61,28 +61,79 @@ $(".list-group").on("click", "p", function () {
 $(".list-group").on("blur", "textarea", function () {
   // Get current, updated value/text
   var text = $(this)
+  .val()
+  .trim();
+  
+  // Get the parent ul's ID
+  var status = $(this)
+  .closest(".list-group")
+  .attr("id")
+  .replace("list-", "");
+  
+  // Get the tasks' position in the list of other <li> elements
+  var index = $(this)
+  .closest(".list-group-item")
+  .index();
+  
+  tasks[status][index].text = text;
+  saveTasks();
+  
+  // Rebuild <p> element
+  var taskP = $("<p>")
+  .addClass("m-1")
+  .text(text);
+  $(this).replaceWith(taskP);
+});
+
+// When user clicks on due date, make editable
+$(".list-group").on("click", "span", function() {
+  // Get current date
+  var date = $(this)
+    .text()
+    .trim();
+  
+  // Create input element
+  var dateInput = $("<input>")
+    .attr("type", "text")
+    .addClass("form-control")
+    .val(date);
+
+  // Swap the elements, displaying date input
+  $(this).replaceWith(dateInput);
+
+  // Focus on new element
+  dateInput.trigger("focus");
+});
+
+// When user changes the date element
+$(".list-group").on("blur", "input[type='text']", function() {
+  // Get updated text
+  var date = $(this)
     .val()
     .trim();
-
-  // Get the parent ul's ID
+    
+  // Get parent <ul>'s ID
   var status = $(this)
     .closest(".list-group")
     .attr("id")
     .replace("list-", "");
-
-  // Get the tasks' position in the list of other <li> elements
+  
+  // Get task's position in list of <li> elements
   var index = $(this)
     .closest(".list-group-item")
     .index();
-
-  tasks[status][index].text = text;
+  
+  // Update task in array, resave to local storage
+  tasks[status][index].date = date;
   saveTasks();
 
-  // Rebuild <p> element
-  var taskP = $("<p>")
-    .addClass("m-1")
-    .text(text);
-  $(this).replaceWith(taskP);
+  // Rebuild span element with bootstrap
+  var taskSpan = $("<span>")
+    .addClass("badge badge-primary badge-pill")
+    .text(date);
+  
+  // Replace input with <span>
+  $(this).replaceWith(taskSpan);
 });
 
 // modal was triggered
@@ -102,19 +153,19 @@ $("#task-form-modal .btn-primary").click(function() {
   // get form values
   var taskText = $("#modalTaskDescription").val();
   var taskDate = $("#modalDueDate").val();
-
+  
   if (taskText && taskDate) {
     createTask(taskText, taskDate, "toDo");
-
+    
     // close modal
     $("#task-form-modal").modal("hide");
-
+    
     // save in tasks array
     tasks.toDo.push({
       text: taskText,
       date: taskDate
     });
-
+    
     saveTasks();
   }
 });
