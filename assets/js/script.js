@@ -224,7 +224,7 @@ $("#task-form-modal .btn-save").click(function() {
 
 // Add datepicker to modal
 $("#modalDueDate").datepicker({
-  // minDate: 1
+  minDate: 1
 });
 
 // remove all tasks
